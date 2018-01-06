@@ -1,38 +1,40 @@
-#include "camera/Camera.h"
-#include "network/SocketServer.h"
-#include<iostream>
+#include "camera.hpp"
+#include "vision_server.hpp"
+
+#include <cstdlib>
+#include <iostream>
+
+#define TCP_PORT 8000
+#define CAMERA_FRAME_WIDTH 600
+#define CAMERA_FRAME_HEIGHT 480
 
 using namespace std;
 
-#define CAMERA_FRAME_WIDTH 640
-#define CAMERA_FRAME_HEIGHT 480
-#define TCP_PORT 54321
-
-int main()
+int main(int argc, char* argv[])
 {
     
-    // ======= CAMERA ===========
-    cout << "fetching Camera" << endl;
-    Camera camera(0, CAMERA_FRAME_WIDTH, CAMERA_FRAME_HEIGHT);
+    short port = TCP_PORT;
     
-    cout << "grabbing Image" << endl;
-    cout << camera.grab_bw() << endl;
+    try {
+        
+        cout << "enabeling Camera" << endl;
+        Camera * camera = new Camera(0, CAMERA_FRAME_WIDTH, CAMERA_FRAME_HEIGHT);
+        
+        cout << "Initializing TCP Server and waiting for connections on port: " << port << endl;
+        boost::asio::io_service io_service;
+        VisionServer s(io_service, port, camera);
+        io_service.run();
+        
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
     
-    
-    // ======= SERVO ==============
-    // ======= TCP SERVER =========
-    
+    /*
     cout << "Starting EBB Server Example" << endl;
     SocketServer server(54321);
     cout << "Listening for a connection..." << endl;
-    server.listen();
-    string rec = server.receive(1024);
-    cout << "Received from the client [" << rec << "]" << endl;
-    string message("The Server says thanks!");
-    cout << "Sending back [" << message << "]" << endl;
-    server.send(message);
-    cout << "End of EBB Server Example" << endl;
-   
+    server.threadedListen();
+    */
     
     /*
     VideoCapture capture(0);   // capturing from /dev/video0
