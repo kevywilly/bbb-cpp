@@ -19,7 +19,7 @@ using namespace std;
 class session
 {
 public:
-  session(boost::asio::io_service& io_service, void (*fn) (char *))
+  session(boost::asio::io_service& io_service, void (*fn) (const string&))
     : socket_(io_service) {
     callback = fn;
   }
@@ -37,13 +37,19 @@ public:
 
   void handle_read(const boost::system::error_code& error, size_t bytes_transferred){
     if (!error){
+      
+      cout << data_ << endl;
       if(callback) {
-        callback(data_);
+        string payload(data_);
+        callback(payload);
       }
+      
+      
       boost::asio::async_write(socket_,
           boost::asio::buffer(data_, bytes_transferred),
           boost::bind(&session::handle_write, this,
             boost::asio::placeholders::error));
+      
     } else {
       delete this;
     }
@@ -53,11 +59,11 @@ public:
   {
     if (!error){
       std::string s(data_);
-      cout << data_ << endl;
       socket_.async_read_some(boost::asio::buffer(data_, max_length),
           boost::bind(&session::handle_read, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
+            strcpy(data_,"");
     } else {
       delete this;
     }
@@ -65,14 +71,14 @@ public:
 
 private:
   tcp::socket socket_;
-  enum { max_length = 1024 };
+  enum { max_length = 256 };
   char data_[max_length];
-  void (*callback) (char *);
+  void (*callback) (const string&);
 };
 
 class server{
 public:
-  server(boost::asio::io_service& io_service, short port, void (*fn)(char*))
+  server(boost::asio::io_service& io_service, short port, void (*fn)(const string&))
     : io_service_(io_service), acceptor_(io_service, tcp::endpoint(tcp::v4(), port)) {
     callback = fn;
     session* new_session = new session(io_service_, callback);
@@ -99,7 +105,7 @@ public:
 private:
   boost::asio::io_service& io_service_;
   tcp::acceptor acceptor_;
-  void (*callback) (char *);
+  void (*callback) (const string&);
 };
 
 /*

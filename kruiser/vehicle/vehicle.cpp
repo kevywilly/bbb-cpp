@@ -1,5 +1,6 @@
 #include "../robotcape/robotcape.hpp"
 #include "../network/server.hpp"
+#include "../json/json_payload.hpp"
 #include "drivetrain.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -43,18 +44,50 @@ void handler( const boost::system::error_code& error , int signal_number )
 /********************
  * Callback
  *******************/
-void callback(char * payload) {
-	if(string(payload) != previous_payload) {
-		previous_payload = string(payload);
-		// drivetrain.drive()
-		cout << payload << endl;
-	}
+void callback(const string& payload) {
+	
+	if(payload == previous_payload) 
+		return;
+	previous_payload = payload;
+	
+	JsonPayload json(payload);
+	
+	std::string cmd = json.getStringOr("cmd","None");
+	float speed = json.getFloatOr("speed",0.0);
+	float angle = json.getFloatOr("angle",0.0);
+	
+	cout << "Got Callback" << endl;
+	cout << "cmd:" << cmd << "speed: " << speed << endl;
+	
+	drivetrain.drive(speed, angle);
 }
 
+/*
+int main(int argc, char* argv[])
+{
+  try
+  {
+    if (argc != 2)
+    {
+      std::cerr << "Usage: blocking_tcp_echo_server <port>\n";
+      return 1;
+    }
 
+    boost::asio::io_service io_service;
+
+    server(io_service, std::atoi(argv[1]), callback);
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Exception: " << e.what() << "\n";
+  }
+
+  return 0;
+}*/
 /********************
  * Main Entry Point
  *******************/
+
 int main(int argc, char* argv[])
 {
 	
@@ -88,7 +121,7 @@ int main(int argc, char* argv[])
 		cout << "Press Ctrl-C to exit "<< endl;
 		
 	    
-	    drivetrain.drive(0.25, 45.0);
+	    drivetrain.disable();
 	    io_service.run();
 	    
 	  }

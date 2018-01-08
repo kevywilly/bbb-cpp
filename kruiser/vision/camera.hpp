@@ -7,6 +7,8 @@
 using namespace std;
 using namespace cv;
 
+#define IMAGE_PATH "images"
+
 class Camera {
 
 public:
@@ -23,6 +25,27 @@ public:
     // Grab BW Image
     int grab_bw(){
         cout << "Grabbing Black and White Image" << endl;
+        if(!capture.isOpened()){   // connect to the camera
+            cout << "Failed to connect to the camera." << endl;
+        }
+
+        Mat frame, gray, edges;    // images for orignal, grayscale and edge image
+        capture >> frame;          // capture the image to the frame
+        if(frame.empty()){         // did the capture succeed?
+           cout << "Failed to capture an image" << endl;
+           return -1;
+        }
+        cout << "Processing - Performing Image Processing" << endl;
+        cvtColor(frame, gray, CV_BGR2GRAY); // convert to grayscale
+        blur(gray, edges, Size(3,3));       // blur grayscale image 3x3 kernel
+        // use Canny edge detector that outputs to the same image
+        // low threshold = 10, high threshold = 30, kernel size = 3
+        Canny(edges, edges, 10, 30, 3);      // Run Canny edge detector
+        cout << "Finished Processing - Saving images" << endl;
+    
+        imwrite("images/capture.png", frame);
+        imwrite("images/grayscale.png", gray);
+        imwrite("images/edges.png", edges);
         return 0;
     }
     
