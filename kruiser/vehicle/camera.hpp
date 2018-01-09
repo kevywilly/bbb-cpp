@@ -25,6 +25,7 @@ public:
     // Grab BW Image
     int grab_bw(){
         cout << "Grabbing Black and White Image" << endl;
+        capture.open(0);
         if(!capture.isOpened()){   // connect to the camera
             cout << "Failed to connect to the camera." << endl;
         }
@@ -46,16 +47,27 @@ public:
         imwrite("images/capture.png", frame);
         imwrite("images/grayscale.png", gray);
         imwrite("images/edges.png", edges);
+        
+        release();
         return 0;
     }
     
+    // Release the capture if in progress
+    void release() { capture.release(); }
+    
+    // Set frame size
     void set_frame_size(int width, int height) {
         capture.set(CV_CAP_PROP_FRAME_WIDTH,width);   // width pixels
         capture.set(CV_CAP_PROP_FRAME_HEIGHT,height);   // height pixels
     }
     
+    // Set gain
     void set_gain(int value) {
         capture.set(CV_CAP_PROP_GAIN, value);
+    }
+    
+    virtual ~Camera() {
+        release();
     }
     
 private:

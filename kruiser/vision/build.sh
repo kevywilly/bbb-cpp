@@ -1,1 +1,0 @@
-g++ -O2 `pkg-config --cflags --libs opencv` -lboost_system -lpthread vision.cpp -o vision

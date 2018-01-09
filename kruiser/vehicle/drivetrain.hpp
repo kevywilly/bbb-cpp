@@ -2,48 +2,58 @@
 #define MOTOR_H_
 
 #include "../robotcape/robotcape.hpp"
-typedef enum m_mode_t{
+
+
+namespace MotorStatus {
+typedef enum Status{
 	DISABLED,
 	NORMAL,
 	BRAKE,
 	FREE
-} m_mode_t;
-
+} Status;
+}
 
 class Drivetrain {
 
 private:
     short m1, m2;
-    float speed_, angle_;
-    m_mode_t state;
+    float speed_, turn_;
+
+    MotorStatus::Status m_status;
 
 public:
     // Constructor
 	Drivetrain(short ch1, short ch2) : m1(ch1), m2(ch2) {
 	    if(rc_get_state() == RUNNING)
 	        disable();
-	    state = DISABLED;
+	    m_status = MotorStatus::DISABLED;
 	}
 	
 	void enable() {
 	    rc_enable_motors();
-	    state = NORMAL;
+	    m_status = MotorStatus::NORMAL;
 	}
 	
 	void disable() {
 	    rc_disable_motors();
-	    state = DISABLED;
+	    m_status = MotorStatus::DISABLED;
 	}
 	
-	m_mode_t get_state() {
-	    return state;
+	MotorStatus::Status get_status() {
+	    return m_status;
 	}
 	
-	void drive(float speed, float angle) {
+	void drive(float speed, float turn) {
         
-        float d1,d2;
-        d1=0;d2=0;
+        speed_ = speed;
+        turn_ = turn;
         
+        if(speed == 0 && turn == 0) {
+            free_spin();
+            return;
+        }
+        
+        /*
         // If zeros, then free spin
         if(speed == 0.0 && angle == 0.0) {
             free_spin();
@@ -53,6 +63,7 @@ public:
         speed_ = speed;
         angle_ = angle;
         
+        if angle
         if(angle == 0 || angle == 360) {
             d1 = speed;
             d2 = 0.0;
@@ -69,20 +80,21 @@ public:
             d1 = speed;
             d2 = -(1.0-(angle-270)/90.0);
         }
+        */
         
-	    if(state == DISABLED)
+	    if(m_status == MotorStatus::DISABLED)
 	        enable();
 	    
-	    rc_set_motor(m1, d1);
-	    rc_set_motor(m2, d2);
+	    rc_set_motor(m1, speed_);
+	    rc_set_motor(m2, turn_);
 	    
-	    state = NORMAL;
+	    m_status = MotorStatus::NORMAL;
 	}
 	
 	void free_spin() {
-	    speed_ = angle_ = 0;
+	    speed_ = turn_ = 0.0;
         rc_set_motor_free_spin_all();
-        state = FREE;
+        m_status = MotorStatus::FREE;
     }
     
 	// Deconstructor
