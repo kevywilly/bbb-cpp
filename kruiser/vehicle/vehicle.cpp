@@ -4,7 +4,7 @@
 #include "../json/json_payload.hpp"
 #include "drivetrain.hpp"
 #include "camera_mount.hpp"
-#include "camera.hpp"
+//#include "camera.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <boost/thread.hpp>
@@ -21,7 +21,7 @@ Drivetrain drivetrain(1,2);
 CameraMount camera_mount(1,2);
 // Camera
 // setup camera
-Camera camera(0, CAMERA_FRAME_WIDTH, CAMERA_FRAME_HEIGHT);
+//Camera camera(0, CAMERA_FRAME_WIDTH, CAMERA_FRAME_HEIGHT);
 
 // Track payloads
 string previous_payload = "";
@@ -63,13 +63,12 @@ void handler( const boost::system::error_code& error , int signal_number )
 }
 
 
-/********************
- * Callback
- *******************/
+/*********************************
+ * Callback from TCP Server
+ *********************************/
 void callback(const string& payload) {
 	
-	if(payload == previous_payload) 
-		return;
+	string tmp_payload = previous_payload;
 	previous_payload = payload;
 	
 	JsonPayload json(payload);
@@ -78,25 +77,30 @@ void callback(const string& payload) {
 	
 	cout << "Got Callback" << endl;
 	
-	if(cmd == "drive") 
+	if(cmd == "drive" && payload != tmp_payload) 
 	{
+				// Change drive parameters
 				float speed = json.getFloatOr("speed",0.0);
 				float turn = json.getFloatOr("turn",0.0);
 			  cout << "cmd:" << cmd << "speed: " << speed << "turn:" << turn << endl;
 			  drivetrain.drive(speed, turn);
 	} 
-		else if(cmd == "look") 
+		else if(cmd == "look" && payload != tmp_payload) 
 	{
+				// Adjust camera mount
 				float yaw = json.getFloatOr("yaw",0.0);
 				float pitch = json.getFloatOr("pitch",0.0);
 			  cout << "cmd: " << cmd << "yaw: " << yaw << "pitch: " << pitch << endl;
 			  camera_mount.look(yaw, pitch);
 	} 
+	/*
 		else 	if(cmd == "grabbw") 
 	{
+			// Grab Image
 			cout << "cmd: " << cmd << endl;
 	    camera.grab_bw();
 	}
+	*/
 
 }
 

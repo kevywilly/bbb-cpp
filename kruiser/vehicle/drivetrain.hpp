@@ -47,47 +47,21 @@ public:
         
         speed_ = speed;
         turn_ = turn;
-        
-        if(speed == 0 && turn == 0) {
-            free_spin();
-            return;
-        }
-        
-        /*
-        // If zeros, then free spin
-        if(speed == 0.0 && angle == 0.0) {
-            free_spin();
-            return;
-        }
-        
-        speed_ = speed;
-        angle_ = angle;
-        
-        if angle
-        if(angle == 0 || angle == 360) {
-            d1 = speed;
-            d2 = 0.0;
-        } else if(angle <= 90) {
-            d1 = speed;
-            d2 = (angle/90.0);
-        } else if(angle <= 180) {
-            d1 = -speed;
-            d2 = 1.0-(angle-90)/90.0;
-        } else if(angle < 270) {
-            d1 = -speed;
-            d2 = -(1.0-(angle-180)/90.0);
-        } else if(angle < 360) {
-            d1 = speed;
-            d2 = -(1.0-(angle-270)/90.0);
-        }
-        */
+       
         
 	    if(m_status == MotorStatus::DISABLED)
 	        enable();
 	    
-	    rc_set_motor(m1, speed_);
+	     
+        if(speed == 0 && turn == 0) {
+            rc_set_motor_free_spin(m1);
+            
+        } else {
+        
+	        rc_set_motor(m1, speed_);
+	        
+        }
 	    rc_set_motor(m2, turn_);
-	    
 	    m_status = MotorStatus::NORMAL;
 	}
 	
