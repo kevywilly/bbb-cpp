@@ -4,8 +4,8 @@ project (Kruiser)
 find_package( Boost REQUIRED )
 #find_package( OpenCV REQUIRED )
 
-set(INCLUDE ../network)
-set(SOURCES vehicle.cpp)
+set(INCLUDE json network robotcape vehicle)
+set(SOURCES kruiser.cpp)
 
 
 include_directories (${INCLUDE})

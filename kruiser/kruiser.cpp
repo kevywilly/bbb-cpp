@@ -1,9 +1,9 @@
 
-#include "../robotcape/robotcape.hpp"
-#include "../network/server.hpp"
-#include "../json/json_payload.hpp"
-#include "drivetrain.hpp"
-#include "camera_mount.hpp"
+#include "robotcape/robotcape.hpp"
+#include "network/server.hpp"
+#include "json/json_payload.hpp"
+#include "vehicle/drivetrain.hpp"
+#include "vehicle/camera_mount.hpp"
 //#include "camera.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -19,15 +19,11 @@ using namespace std;
 Drivetrain drivetrain(1,2);
 // Camera Mount
 CameraMount camera_mount(1,2);
-// Camera
-// setup camera
-//Camera camera(0, CAMERA_FRAME_WIDTH, CAMERA_FRAME_HEIGHT);
 
 // Track payloads
 string previous_payload = "";
 
 // Set camera ptr
-
 boost::thread * camera_mount_ptr;
 
 /********************
@@ -93,14 +89,7 @@ void callback(const string& payload) {
 			  cout << "cmd: " << cmd << "yaw: " << yaw << "pitch: " << pitch << endl;
 			  camera_mount.look(yaw, pitch);
 	} 
-	/*
-		else 	if(cmd == "grabbw") 
-	{
-			// Grab Image
-			cout << "cmd: " << cmd << endl;
-	    camera.grab_bw();
-	}
-	*/
+
 
 }
 
@@ -156,7 +145,7 @@ int main(int argc, char* argv[])
 			  boost::asio::io_service io_service;
 			    
 			  // handler for service interrupt
-				boost::asio::signal_set signals(io_service, SIGINT );
+				boost::asio::signal_set signals(io_service, SIGINT, SIGTERM );
 				server s(io_service, port, callback);
 				signals.async_wait( handler );
 				
@@ -178,26 +167,3 @@ int main(int argc, char* argv[])
 }
 
 
-/**** sync server ****/
-/*
-int main(int argc, char* argv[])
-{
-  try
-  {
-    if (argc != 2)
-    {
-      std::cerr << "Usage: blocking_tcp_echo_server <port>\n";
-      return 1;
-    }
-
-    boost::asio::io_service io_service;
-
-    server(io_service, std::atoi(argv[1]), callback);
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
-
-  return 0;
-}*/

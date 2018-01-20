@@ -1,12 +1,13 @@
+#!/usr/bin/python
 from threading import Thread 
 import subprocess
 
 
 def start_streamer():
-    subprocess.call(["/usr/bin/mjpg_streamer","-i","input_uvc.so","-o","output_http.so -p 8090 -w /usr/local/www"  ])
+    subprocess.call(["/usr/bin/mjpg_streamer","-i","input_uvc.so","-o","output_http.so -p 8001 -w /usr/local/www"  ])
 
 def start_vehicle():
-    subprocess.call(["vehicle/build/Vehicle","8000"])
+    subprocess.call(["/usr/bin/Kruiser","8000"])
 
 
 def main():
