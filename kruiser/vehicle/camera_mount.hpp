@@ -19,7 +19,7 @@ public:
     // Constructor
 	CameraMount(short ch1, short ch2) : servo1(ch1), servo2(ch2) {
 	    pulse1 = 0;
-	    pulse2 = angle_to_pulse(20);
+	    pulse2 = angle_to_pulse(0);
 	    if(rc_get_state() == RUNNING)
 	        disable();
 	    status = ServoStatus::DISABLED;
